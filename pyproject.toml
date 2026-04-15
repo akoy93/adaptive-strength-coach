@@ -1,0 +1,24 @@
+[project]
+name = "adaptive-strength-coach"
+version = "0.1.0"
+description = "CLI-first adaptive strength coach data and recommendation engine."
+requires-python = ">=3.12"
+dependencies = [
+    "garth==0.6.3",
+    "pydantic>=2.0",
+    "requests>=2.0",
+    "rich>=13.0",
+    "typer>=0.12",
+]
+
+[project.scripts]
+coach = "adaptive_strength_coach.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]

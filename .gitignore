@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local health/provider data and secrets.
+.adaptive-strength-coach/
+data/
+raw/
+*.db
+*.sqlite
+*.sqlite3
+*.env
+garth_session*

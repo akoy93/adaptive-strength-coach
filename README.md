@@ -13,6 +13,47 @@ The MVP should verify:
 - DEXA scans and lifting numbers produce reasonable development priorities.
 - Daily recommendations look like sound strength programming adjusted for recovery, sport load, and user feedback.
 
+## Current Implementation
+
+The repo currently includes the first read-only Garmin integration slice:
+
+```bash
+uv sync --dev
+uv run coach garmin doctor --account "$GARMIN_EMAIL"
+uv run coach garmin auth --account "$GARMIN_EMAIL"
+uv run coach garmin status --account "$GARMIN_EMAIL"
+uv run coach garmin sync --account "$GARMIN_EMAIL" --latest-days 1 --activities 3 --details
+uv run coach import strong /Users/akoy/Desktop/health/strong_workouts.csv
+uv run coach import dexa /Users/akoy/Desktop/health
+uv run coach state
+uv run coach inspect dexa
+uv run coach inspect strength
+uv run coach inspect development
+```
+
+Credential handling:
+
+- Garmin credentials are read from the macOS Keychain internet-password entry for `sso.garmin.com`.
+- The CLI never prints the password.
+- Garmin session tokens are stored locally at `~/.adaptive-strength-coach/garmin/session.json` with `0600` permissions.
+- Raw Garmin JSON audit payloads are stored under `~/.adaptive-strength-coach/raw/garmin` with `0600` permissions.
+- The SQLite database is stored at `~/.adaptive-strength-coach/coach.sqlite3`.
+
+Garmin safety constraints:
+
+- The adapter only uses read-only Garmin Connect requests.
+- It does not call upload, update, delete, or workout-publishing endpoints.
+- `404` activity-detail misses fall back to activity summaries.
+- `429` rate limits abort the sync and should not be retried aggressively.
+- If Garmin asks for MFA, rerun `coach garmin auth` with `--mfa-code`.
+
+Bootstrap imports:
+
+- Strong CSV imports skip rest-timer rows and store normalized working sets.
+- Strong e1RM estimates use the Epley formula for sets of 1-12 reps.
+- BodySpec PDFs are parsed through local `pdftotext`; summary and regional lean-mass fields are persisted.
+- `coach inspect development` combines DEXA lean-mass trends with key lift anchors.
+
 ## Product Scope
 
 The app is a coaching and planning tool, not a medical tool. It should generate a custom workout each session rather than selecting from fixed templates. Biometrics and machine learning may adjust training dose, but strength programming principles determine the training direction.
